@@ -69,7 +69,7 @@ Check That Order Went Through
     ${status}    Run Keyword And Return Status    Wait Until Element Is Visible  //*[@id="receipt"]    2s
     Log    ${status}
     Sleep  2
-    Run Keyword If	'${status}' == 'False'    Wait Until Keyword Succeeds    3x    0.5 sec    Wait And Click    //*[@id="order"]
+    Run Keyword If	'${status}' == 'False'    Wait Until Keyword Succeeds    3x    1sec    Wait And Click    //*[@id="order"]
 
 Store the receipt as a PDF file
     [Arguments]    ${receipt}
