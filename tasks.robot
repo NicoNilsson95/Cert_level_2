@@ -44,7 +44,8 @@ Open the robot order website
 
 Get Orders
     ${CSVURL}    Collect CSV URL from user
-    RPA.HTTP.Download    ${CSVURL}    overwrite=True
+    Log    ${CSVURL}
+    RPA.HTTP.Download    ${CSVURL}    overwrite=True 
     #RPA.HTTP.Download    https://robotsparebinindustries.com/orders.csv    overwrite=True
     ${table}    Read table from CSV    orders.csv    dialect=excel
     Close Browser
@@ -109,7 +110,7 @@ Collect CSV URL from user
     ...    placeholder=Enter URL here
     ...    rows=5
     ${result}=    Run dialog
-    [return]    ${result}
+    [return]    ${result.url}
 
 Wait And Click
     [Arguments]    ${path}
