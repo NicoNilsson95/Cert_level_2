@@ -7,6 +7,7 @@ Library           RPA.FileSystem
 Library           RPA.PDF
 Library           RPA.Archive
 Library           RPA.Dialogs
+Library           RPA.Robocorp.Vault
 Library           String
 Documentation     Orders robots from RobotSpareBin Industries Inc.
 ...               Saves the order HTML receipt as a PDF file.
@@ -15,7 +16,6 @@ Documentation     Orders robots from RobotSpareBin Industries Inc.
 ...               Creates ZIP archive of the receipts and the images.
 
 *** Variables ***
-${URL}    https://robotsparebinindustries.com/
 ${PDF_OUTPUT_DIRECTORY}    ${OUTPUTDIR}${/}receipts
 
 *** Tasks ***
@@ -38,15 +38,21 @@ Order robots from RobotSpareBin Industries Inc
 
 *** Keywords ***
 Open the robot order website
+    ${URL}    Reading secrets
+    Log    ${url}
     Open Browser    ${URL}    chrome
     Maximize Browser Window
     Wait And Click  //*[contains(text(), 'Order your robot!')]
+
+Reading secrets
+    ${secret}    Get Secret    row_url
+    Log    ${secret}
+    [return]    ${secret}[url_key]
 
 Get Orders
     ${CSVURL}    Collect CSV URL from user
     Log    ${CSVURL}
     RPA.HTTP.Download    ${CSVURL}    overwrite=True 
-    #RPA.HTTP.Download    https://robotsparebinindustries.com/orders.csv    overwrite=True
     ${table}    Read table from CSV    orders.csv    dialect=excel
     Close Browser
     [return]    ${table}
@@ -72,8 +78,12 @@ Submit the order
 Check That Order Went Through
     ${status}    Run Keyword And Return Status    Wait Until Element Is Visible  //*[@id="receipt"]    2s
     Log    ${status}
-    Sleep  2
-    Run Keyword If	'${status}' == 'False'    Wait Until Keyword Succeeds    3x    1sec    Wait And Click    //*[@id="order"]
+    Run Keyword If	'${status}' == 'False'    Wait Until Keyword Succeeds    5x    1sec    Click order after order failure
+
+Click order after order failure
+    Execute Javascript    window.scrollTo(0,document.body.scrollHeight);
+    Wait And Click    //*[@id="order"]
+    Wait Until Element Is Visible  //*[@id="receipt"]    1s
 
 Store the receipt as a PDF file
     [Arguments]    ${receipt}
