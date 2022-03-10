@@ -6,6 +6,7 @@ Library           RPA.Tables
 Library           RPA.FileSystem
 Library           RPA.PDF
 Library           RPA.Archive
+Library           RPA.Dialogs
 Library           String
 Documentation     Orders robots from RobotSpareBin Industries Inc.
 ...               Saves the order HTML receipt as a PDF file.
@@ -42,7 +43,9 @@ Open the robot order website
     Wait And Click  //*[contains(text(), 'Order your robot!')]
 
 Get Orders
-    RPA.HTTP.Download    https://robotsparebinindustries.com/orders.csv    overwrite=True
+    ${CSVURL}    Collect CSV URL from user
+    RPA.HTTP.Download    ${CSVURL}    overwrite=True
+    #RPA.HTTP.Download    https://robotsparebinindustries.com/orders.csv    overwrite=True
     ${table}    Read table from CSV    orders.csv    dialect=excel
     Close Browser
     [return]    ${table}
@@ -98,6 +101,15 @@ Create a ZIP file of the receipts
     Archive Folder With Zip
     ...    ${PDF_OUTPUT_DIRECTORY}
     ...    ${zip_file_name}
+
+Collect CSV URL from user
+    Add heading    Please give the URL for CSV file
+    Add text input    url
+    ...    label=URL
+    ...    placeholder=Enter URL here
+    ...    rows=5
+    ${result}=    Run dialog
+    [return]    ${result}
 
 Wait And Click
     [Arguments]    ${path}
